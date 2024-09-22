@@ -112,10 +112,7 @@ namespace gl
 		inline bool KillPlayersSilent = false;
 
 		inline float RapidFireValue = 0.11f;
-		inline bool xpApply = false;
-		inline int xp = 0;
 		inline bool finishGame = false;
-		inline bool plusKill = false;
 	}
 
 	namespace Misc

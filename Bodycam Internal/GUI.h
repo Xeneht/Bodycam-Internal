@@ -106,7 +106,7 @@ inline void DrawMenu()
 			ImGui::Checkbox("Full Auto", &gl::Exploits::FullAuto);
 			ImGui::Checkbox("Unlimited Ammo", &gl::Exploits::UnlimitedAmmo);
 			ImGui::Checkbox("GodMode", &gl::Exploits::GodMode);
-			ImGui::SliderInt("##XP Value", &gl::Exploits::xp, -2000, 50000);
+			ImGui::SliderInt("##XP Value", &gl::Exploits::xp, 0, 50000);
 			ImGui::SameLine();
 			if (ImGui::Button("Apply XP"))
 				gl::Exploits::xpApply = true;
@@ -139,17 +139,8 @@ inline void DrawMenu()
 			ImGui::Checkbox("Kill All players", &gl::HostOptions::KillPlayers);
 			ImGui::Checkbox("Kill All players (silent)", &gl::HostOptions::KillPlayersSilent);
 
-			ImGui::SliderInt("##XP Value", &gl::Exploits::xp, -2000, 50000);
-			ImGui::SameLine();
-			if (ImGui::Button("Apply XP"))
-				gl::HostOptions::xpApply = true;
-			
 			if (ImGui::Button("Finish Game"))
 				gl::HostOptions::finishGame = true;
-			
-			if (ImGui::Button("+1 Kill Everyone"))
-				gl::HostOptions::plusKill = true;
-
 
 			ImGui::EndTabItem();
 		}

@@ -316,24 +316,6 @@ void GameLoop()
 				}
 			}
 
-			if (gl::HostOptions::xpApply && !isLocalPlayer) {
-				auto pcb = Character->PC_Bodycam;
-				if (pcb)
-					if (!IsBadPoint(pcb)) {
-						pcb->UpdateXp(gl::HostOptions::xp);
-						gl::HostOptions::xpApply = false;
-					}
-			}
-
-			if (gl::HostOptions::plusKill && !isLocalPlayer) {
-				auto pcb = Character->PC_Bodycam;
-				if (pcb)
-					if (!IsBadPoint(pcb)) {
-						pcb->Update_Kill(1);
-						gl::HostOptions::plusKill = false;
-					}
-			}
-
 			if (gl::HostOptions::finishGame && !isLocalPlayer) {
 				auto pcb = Character->PC_Bodycam;
 				if (pcb)
