@@ -1,8 +1,14 @@
 #pragma once
 #include "includes.h"
+inline bool firstDraw = true;
 
 inline void DrawMenu()
 {
+	if (firstDraw)
+	{
+		ImGui::SetNextWindowSize(ImVec2(500, 300));
+		firstDraw = false;
+	}
 	ImGui::Begin("Bodycam Cheat Made By Xeneht (Unknowncheats.me) V1.7");
 
 	if (ImGui::BeginTabBar("tabs"))
@@ -33,7 +39,7 @@ inline void DrawMenu()
 			ImGui::Spacing();
 
 			ImGui::Checkbox("Instant Kill", &gl::Aimbot::InstantKill);
-			ImGui::Checkbox("No Aiming Restrictions", &gl::Aimbot::AimLine);
+			ImGui::Checkbox("No Aiming Restrictions", &gl::Aimbot::NoAimingRestrictions);
 			ImGui::Checkbox("Instant Aiming", &gl::Aimbot::InstantAiming);
 
 			ImGui::EndTabItem();
