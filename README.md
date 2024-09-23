@@ -6,7 +6,12 @@
 - Inject the Dumper-7.dll into the game process "Bodycam-Win64-Shipping.exe"
 - Go to the dumper output directory, it should be "C:\Dumper-7" and open the dump folder
 - Drop the entire CppSDK folder content into the "Bodycam Internal" project folder replacing all files
-- Open the project and build it, fix crashes debugging the game
+- Open the project and build it on Release, fix crashes debugging the game
+> [!NOTE]  
+> You must have Microsoft DirectX SDK, download it [here](https://www.microsoft.com/download/details.aspx?id=6812)
+
+> [!WARNING]  
+> Go to the project settings -> C/C++ -> All Options and add `/bigobj` under Additional Options
 
 ## Features
 ### Aimbot
