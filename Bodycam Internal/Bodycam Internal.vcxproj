@@ -82,11 +82,13 @@
     <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x64;$(LibraryPath)</LibraryPath>
     <IncludePath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\build</OutDir>
+    <IntDir>$(SolutionDir)\build\intermediate</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x64;$(LibraryPath)</LibraryPath>
     <IncludePath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\build</OutDir>
+    <IntDir>$(SolutionDir)\build\intermediate</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,6 +110,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/bigobj</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,6 +143,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/bigobj</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -169,9 +173,12 @@
     <ClCompile Include="SDK\BodycamGI_functions.cpp" />
     <ClCompile Include="SDK\CoreUObject_functions.cpp" />
     <ClCompile Include="SDK\Engine_functions.cpp" />
+    <ClCompile Include="SDK\GM_Zombie_functions.cpp" />
+    <ClCompile Include="SDK\HUD_ScorePlayerInfo_functions.cpp" />
     <ClCompile Include="SDK\PC_Bodycam_functions.cpp" />
     <ClCompile Include="SDK\UMG_functions.cpp" />
     <ClCompile Include="SDK\WW_SurvivorStatus_functions.cpp" />
+    <ClCompile Include="SDK\Zombie_functions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="kiero\minhook\dll_resources\MinHook.def" />
@@ -197,6 +204,7 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="kiero\kiero.h" />
+    <ClInclude Include="kiero\minhook\dll_resources\resource.h" />
     <ClInclude Include="kiero\minhook\include\MinHook.h" />
     <ClInclude Include="kiero\minhook\src\buffer.h" />
     <ClInclude Include="kiero\minhook\src\hde\hde32.h" />

@@ -7,9 +7,6 @@ void GameLoop()
 	{
 		for (int i = 0; i < WorldActors.size(); i++)
 		{
-			// Check if any of the world esp options are enabled
-			if (!gl::World::Drones && !gl::World::Bomb) break;
-
 			if (i >= WorldActors.size()) break;
 			if (!WorldActors[i]) continue;
 			World = SDK::UWorld::GetWorld();
@@ -22,7 +19,7 @@ void GameLoop()
 			if (IsBadPoint(MyController)) continue;
 
 			// Get the local player character
-			auto LocalCharacter = reinterpret_cast<SDK::AALS_AnimMan_CharacterBP_C*>(MyController->Character);
+			SDK::AALS_AnimMan_CharacterBP_C* LocalCharacter = reinterpret_cast<SDK::AALS_AnimMan_CharacterBP_C*>(MyController->Character);
 			if (IsBadPoint(LocalCharacter)) continue;
 			double localHealth = 0.0;
 
@@ -58,6 +55,161 @@ void GameLoop()
 		}
 	}
 
+	if (Zombies.size() > 0)
+	{
+		int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+		int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+		for (int i = 0; i < Zombies.size(); i++)
+		{
+			if (i >= Zombies.size()) break;
+			if (!Zombies[i]) continue;
+			World = SDK::UWorld::GetWorld();
+			if (!World) continue;
+			if (IsBadPoint(World)) continue;
+			SDK::AActor* actor = Zombies[i];
+			if (!actor) continue;
+			if (IsBadPoint(actor)) continue;
+			if (!MyController) continue;
+			if (IsBadPoint(MyController)) continue;
+
+			SDK::AALS_AnimMan_CharacterBP_C* LocalCharacter = reinterpret_cast<SDK::AALS_AnimMan_CharacterBP_C*>(MyController->Character);
+			if (IsBadPoint(LocalCharacter)) continue;
+			double localHealth = 0.0;
+
+			// Get the local player survivor and check if is alive
+			auto SurvivorStatus = LocalCharacter->WW_SurvivorStatus;
+			if (SurvivorStatus)
+				localHealth = SurvivorStatus->Health;
+			if (localHealth <= 0) continue;
+
+			if (IsBadPoint(actor->RootComponent)) continue;
+			if (!actor->RootComponent) continue;
+
+			// Get the actor location and check if is valid
+			SDK::FVector* locationPtr = &(actor->RootComponent->RelativeLocation);
+			if (IsBadPoint(locationPtr)) continue;
+			SDK::FVector location = *locationPtr;
+
+			// Draw the text esp
+			bool IsActorVisible = false;
+			if (!MyController->PlayerCameraManager) continue;
+			if (IsBadPoint(MyController->PlayerCameraManager)) continue;
+			if (MyController->PlayerCameraManager->CameraCachePrivate.POV.Location.IsZero()) continue;
+			if (MyController->LineOfSightTo(actor, MyController->PlayerCameraManager->CameraCachePrivate.POV.Location, false))
+				IsActorVisible = true;
+
+			// Get the actor bounds and center
+			SDK::FVector Center{};
+			SDK::FVector Bounds{};
+			SDK::FVector2D Top{};
+			SDK::FVector2D Bottom{};
+			SDK::FVector2D Pos{};
+
+			auto Zombie = reinterpret_cast<SDK::AZombie_C*>(actor);
+			if (!Zombie || IsBadPoint(Zombie)) continue;
+
+			actor->GetActorBounds(true, &Center, &Bounds, false);
+
+			SDK::FVector Top3D = Center + SDK::FVector(0, 0, Bounds.Z);
+			SDK::FVector Bottom3D = Center - SDK::FVector(0, 0, Bounds.Z);
+			if (!MyController->ProjectWorldLocationToScreen(Top3D, &Top, false)) continue;
+			if (!MyController->ProjectWorldLocationToScreen(Bottom3D, &Bottom, false)) continue;
+
+			bool isDead = false;
+			if (Zombie->WW_SurvivorStatus && !IsBadPoint(Zombie->WW_SurvivorStatus) && Zombie->WW_SurvivorStatus->Health && !IsBadPoint(&Zombie->WW_SurvivorStatus->Health))
+				isDead = Zombie->WW_SurvivorStatus->Health < 1;
+
+			if (!MyController->Character->Mesh) continue;
+			auto mesh = reinterpret_cast<SDK::USkeletalMeshComponent*>(Zombie->Mesh);
+
+
+			////////////////////////////////--------------- ESP Draw -------------------////////////////////////////////////////
+
+			// Check if it's alive, esp is enabled and if (player is an enemie or team check is disabled)
+			if (gl::ESP::ESP && !isDead) {
+				// Not visible esp
+				if (!IsActorVisible)
+				{
+					if (gl::ESP::Skeleton)
+						DrawBones(mesh, MyController, gl::esp_Colors::NotVisibleColor);
+				}
+				// Visible esp
+				else if (IsActorVisible)
+				{
+					if (gl::ESP::Skeleton)
+						DrawBones(mesh, MyController, gl::esp_Colors::VisibleColor);
+				}
+			}
+
+			SDK::AWEP_C* pWeapon = LocalCharacter->WEP;
+			if (pWeapon && !IsBadPoint(pWeapon))
+			{
+				// No recoil
+				if (gl::Exploits::NoRecoil) {
+					pWeapon->RecoilRot = SDK::FVector(0, 0, 0);
+					pWeapon->RecoilLoc = SDK::FVector(0, 0, 0);
+					pWeapon->RecoilRandomloc = SDK::FVector(0, 0, 0);
+					pWeapon->RecoilRandomRot = SDK::FVector(0, 0, 0);
+					pWeapon->Recoil_WepRotation = SDK::FVector(0, 0, 0);
+					pWeapon->Aim_Rot = SDK::FVector(0, 0, 0);
+					pWeapon->Aim_Loc = SDK::FVector(0, 0, 0);
+					pWeapon->LeanSwitchLoc = SDK::FVector(0, 0, 0);
+					pWeapon->LeanSwitchRot = SDK::FVector(0, 0, 0);
+					pWeapon->ShakeCurrent = SDK::FVector(0, 0, 0);
+					pWeapon->SmoothRotIdle = 0;
+					pWeapon->Wep_Info.RecoilInfo_14_2F550DD548C99F85FB2D1C911E29083C.CameraShake_13_B0DD31C04CD0D1983602ADB8F281516E = 0;
+					pWeapon->Spread_Multiplier = 0;
+				}
+				// Unlimited ammo
+				if (gl::Exploits::UnlimitedAmmo && !IsBadPoint(pWeapon)) {
+					pWeapon->BulletInChamber = 1;
+				}
+				// Rapid fire
+				if (gl::Exploits::RapidFire) {
+					pWeapon->Wep_Info.RecoilInfo_14_2F550DD548C99F85FB2D1C911E29083C.FireRate_11_A93DD4B84C6696E6E0EC3BA044512B73 = static_cast<double>(gl::Exploits::RapidFireValue);
+				}
+				// Full auto
+				if (gl::Exploits::FullAuto) {
+					pWeapon->Wep_Info.FireMode_39_E7AEF4D24EEC5420D75555A92E651905 = SDK::E_FireMode::NewEnumerator1;
+				}
+				// Instant kill
+				if (gl::Aimbot::InstantKill) {
+					pWeapon->Wep_Info.Damage_17_7F60A88D435DBD7B36C96893C2118EAC = 999;
+				}
+				// Insta aim
+				if (gl::Aimbot::InstantAiming) {
+					pWeapon->Wep_Info.Animation_23_574905EC43F77C89F6A965AFE119106B.ADSInTIme_39_E74D36F9478596C143C5C0A4B3A694F9 = 0.03;
+					pWeapon->Wep_Info.Animation_23_574905EC43F77C89F6A965AFE119106B.ADSOutTime_41_63DF5BF04A00BD2A761C11861660F122 = 0.03;
+				}
+				// No Aiming restrictions
+				if (gl::Aimbot::NoAimingRestrictions) {
+					LocalCharacter->AimingBloked = false;
+				}
+			}
+			// No flash
+			if (gl::ESP::NoFlash) {
+				if (LocalCharacter->FlashBangEffect)
+					if (LocalCharacter->FlashBangEffect < 0)
+						if (LocalCharacter->FlashBangEar)
+							LocalCharacter->FlashBangEar->SetVolumeMultiplier(0);
+				LocalCharacter->FlashBangEffect = 0;
+
+			}
+			// Fov
+			if (gl::Exploits::Fov && LocalCharacter->Camera) {
+				auto Camera = reinterpret_cast<SDK::UCameraComponent*>(LocalCharacter->Camera);
+				if (Camera)
+					if (!IsBadPoint(Camera))
+						Camera->FieldOfView = gl::Exploits::FovValue;
+			}
+			// Gravity
+			if (gl::Exploits::Gravity)
+				if (LocalCharacter->CharacterMovement)
+					LocalCharacter->CharacterMovement->GravityScale = gl::Exploits::GravityValue;
+		}
+	}
+
 	if (PlayerList.size() > 0)
 	{
 		SDK::UALS_AnimBP_C* AnimBP = nullptr;
@@ -78,13 +230,13 @@ void GameLoop()
 			SDK::AActor* actor = PlayerList[i];
 			if (!actor) continue;
 			if (IsBadPoint(actor)) continue;
+			if (IsBadPoint(actor->RootComponent)) continue;
+			if (!actor->RootComponent) continue;
 			if (!LocalActor) continue;
 			if (IsBadPoint(LocalActor)) continue;
-			if (!actor->RootComponent) continue;
 
 
 			// Shitty checks
-			if (IsBadPoint(actor->RootComponent)) continue;
 			if (i >= PlayerList.size()) break;
 			if (!World) continue;
 			if(IsBadPoint(World->OwningGameInstance)) continue;
@@ -94,40 +246,37 @@ void GameLoop()
 
 			// Get the local player controller and character
 			MyController = World->OwningGameInstance->LocalPlayers[0]->PlayerController;
+			if (!MyController) continue;
 			auto LocalController = reinterpret_cast<SDK::APlayerController*>(MyController);
-			auto LocalCharacter = reinterpret_cast<SDK::AALS_AnimMan_CharacterBP_C*>(MyController->Character);
+			if (!MyController->Character) continue;
+			LocalCharacter = reinterpret_cast<SDK::AALS_AnimMan_CharacterBP_C*>(MyController->Character);
 			if (!LocalCharacter) continue;
-
-			// Hide Steam Id and Name on the VHS overlay
-			if (gl::Misc::HideSteamId) {
-				SDK::FString steamIdString = SDK::FString(L"[REDACTED]");
-				SDK::FText steamIdText = SDK::UKismetTextLibrary::Conv_StringToText(steamIdString);
-			
-				SDK::FString nickString = SDK::FString(L"Unknowncheats.me");
-				SDK::FText nickText = SDK::UKismetTextLibrary::Conv_StringToText(nickString);
-
-				if (LocalCharacter->PC_Bodycam)
-					if (LocalCharacter->PC_Bodycam->HUD_Character)
-						if (LocalCharacter->PC_Bodycam->HUD_Character->WBP_Vhs) {
-							auto vhs = LocalCharacter->PC_Bodycam->HUD_Character->WBP_Vhs;
-							if (vhs->SteamID)
-								vhs->SteamID->SetText(steamIdText);
-							if (vhs->Nickname)
-								vhs->Nickname->SetText(nickText);
-						}
-			}
 
 			// Add Kills
 			if (gl::Exploits::addKills) {
 				auto pcb = LocalCharacter->PC_Bodycam;
 				if (pcb)
 					if (!IsBadPoint(pcb)) {
-						for (int i = 0; i < gl::Exploits::killsQuantity; i++)
-							pcb->Update_Kill(1);
+						if (gl::Exploits::killsQuantity > 0)
+							for (int i = 0; i < gl::Exploits::killsQuantity; i++)
+								pcb->Update_Kill(1);
+						if (gl::Exploits::killsQuantity < 0)
+							for (int i = 0; i > gl::Exploits::killsQuantity; i--)
+								pcb->Update_Kill(-1);
 						gl::Exploits::addKills = false;
 					}
 			}
-			
+
+			// Frozen Kills
+			if (gl::Exploits::frozenKills) {
+				auto pcb = LocalCharacter->PC_Bodycam;
+				if (pcb)
+					if (!IsBadPoint(pcb)) {
+						for (int i = 0; i < gl::Exploits::killsQuantity; i++)
+							pcb->Update_Kill(-1);
+						gl::Exploits::addKills = false;
+					}
+			}
 			// Add Xp
 			if (gl::Exploits::xpApply) {
 				auto pcb = LocalCharacter->PC_Bodycam;
@@ -137,10 +286,6 @@ void GameLoop()
 						gl::Exploits::xpApply = false;
 					}
 			}
-
-			if (!MyController) continue;
-			if (!MyController->Character) continue;
-			if (!MyController->Character->Mesh) continue;
 
 			// Get the local player health
 			double localHealth = 0.0;
@@ -225,7 +370,7 @@ void GameLoop()
 				SurvivorStatus->Health = 999;
 			}
 			// Fov
-			if (LocalCharacter->Camera && gl::Exploits::Fov) {
+			if (gl::Exploits::Fov && LocalCharacter->Camera) {
 				auto Camera = reinterpret_cast<SDK::UCameraComponent*>(LocalCharacter->Camera);
 				if (Camera)
 					if (!IsBadPoint(Camera))
@@ -330,7 +475,7 @@ void GameLoop()
 
 
 
-			////////////////////////////////--------------- ESP -------------------////////////////////////////////////////
+			////////////////////////////////--------------- ESP Checks -------------------////////////////////////////////////////
 
 
 
@@ -374,18 +519,41 @@ void GameLoop()
 			if (Character->WW_SurvivorStatus)
 				health = Character->WW_SurvivorStatus->Health;
 
+			if (!MyController->Character->Mesh) continue;
+			auto mesh = reinterpret_cast<SDK::USkeletalMeshComponent*>(Character->Mesh);
+
+
+			if (gl::Exploits::TeleportEnemies && !isLocalPlayer && differentTeam) {
+				SDK::FVector localLocation = LocalActor->K2_GetActorLocation();
+				SDK::FVector actorRotation = MyController->GetActorForwardVector();
+				SDK::FVector newLocation = localLocation + (actorRotation * 200.0f);
+				actor->K2_SetActorRelativeLocation(newLocation, false, nullptr, true);
+			}
+			
+
+			////////////////////////////////--------------- ESP Draw -------------------////////////////////////////////////////
 
 			// Check if it's alive, esp is enabled and if (player is an enemie or team check is disabled)
-			if (!isDead && gl::ESP::ESP && (differentTeam || !gl::ESP::TeamCheck)) {
+			if (!isDead && gl::ESP::ESP && !isLocalPlayer && (differentTeam || !gl::ESP::TeamCheck)) {
 				// Not visible esp
-				if (!IsActorVisible && gl::ESP::ESP_NotVisible)
+				if (!IsActorVisible)
 				{
-					ESP::Draw3DBox(Center, Bounds, MyController, gl::esp_Colors::NotVisibleColor);
+					if (gl::ESP::ESP_NotVisible) {
+						ESP::Draw3DBox(Center, Bounds, MyController, gl::esp_Colors::NotVisibleColor);
+					}
+					if (gl::ESP::Skeleton)
+						DrawBones(mesh, MyController, gl::esp_Colors::NotVisibleColor);
 				}
 				// Visible esp
-				else if (IsActorVisible && gl::ESP::ESP_Visible)
+				else if (IsActorVisible)
 				{
-					ESP::Draw3DBox(Center, Bounds, MyController, gl::esp_Colors::VisibleColor);
+					if (gl::ESP::ESP_Visible)
+						ESP::Draw3DBox(Center, Bounds, MyController, gl::esp_Colors::VisibleColor);
+					if (gl::ESP::Skeleton)
+						DrawBones(mesh, MyController, gl::esp_Colors::VisibleColor);
+				}
+				if (gl::ESP::Distance) {
+					DrawDistance(mesh, MyController, gl::esp_Colors::DistanceColor, Bottom);
 				}
 				if (gl::ESP::SnapLines)
 				{
@@ -404,13 +572,7 @@ void GameLoop()
 						break;
 					}
 
-					auto playerTop = SDK::FVector(Center.X, Center.Y, Center.Z + Bounds.Z);
-					
-					SDK::FVector2D snaplineEnd2D{};
-					if (!MyController->ProjectWorldLocationToScreen(playerTop, &snaplineEnd2D, false)) continue;
-					Vec2 snaplineEnd = { snaplineEnd2D.X, snaplineEnd2D.Y };
-
-					ESP::DrawLine(snaplineOrigin2D, snaplineEnd, gl::esp_Colors::SnaplineColor, 1);
+					ESP::DrawLine(snaplineOrigin2D, Vec2(Top.X, Top.Y), gl::esp_Colors::SnaplineColor, 1);
 				}
 				// Health bar
 				if (gl::ESP::HealthBar)
@@ -427,15 +589,16 @@ void GameLoop()
 						SDK::FString playername = actor->Instigator->PlayerState->PlayerNamePrivate;
 						float estimatedTextHeight = 20.0f;
 						float marginLeft = 15.0f;
-						if (playername.ToString().length() > 0)
+						if (playername.ToString().length() > 0) {
 							ESP::DrawText2({ static_cast<float>(Top.X - marginLeft), static_cast<float>(Top.Y - estimatedTextHeight) }, Colors::White, playername.ToString().c_str());
+						}
 					}
 				}
 			}
 
 			////////////////////////////////--------------- AIMBOT TARGETING -------------------////////////////////////////////////////
 
-			if (gl::Aimbot::Aimbot) {
+			if (gl::Aimbot::Aimbot && !isLocalPlayer) {
 
 				if (isDead) continue;
 				if (!differentTeam) continue;
@@ -477,7 +640,7 @@ void GameLoop()
 				if (gl::Aimbot::AimLine)
 					ESP::DrawLine(screen_middle2D, target_middle2D, gl::esp_Colors::AimLine, 1);
 				// On right click
-				if (GetAsyncKeyState(VK_RBUTTON))
+				if ((GetKeyState(VK_RBUTTON) & 0x8000) != 0)
 					MyController->SetControlRotation(target_rotation);
 			}
 		}

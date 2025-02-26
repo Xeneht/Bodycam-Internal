@@ -33,7 +33,6 @@ void InitImGui()
 LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
-	static bool lastStreamProofState = false;
 
 	switch (uMsg) {
 	case WM_KEYDOWN:

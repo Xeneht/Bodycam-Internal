@@ -9,7 +9,7 @@ inline void DrawMenu()
 		ImGui::SetNextWindowSize(ImVec2(500, 300));
 		firstDraw = false;
 	}
-	ImGui::Begin("Bodycam Cheat Made By Xeneht (Unknowncheats.me) V1.7");
+	ImGui::Begin("Bodycam Cheat Made By Xeneht (Unknowncheats.me) V0.1.3.4");
 
 	if (ImGui::BeginTabBar("tabs"))
 	{
@@ -36,7 +36,6 @@ inline void DrawMenu()
 				ImGui::Spacing();
 			}
 			ImGui::Separator();
-			ImGui::Spacing();
 
 			ImGui::Checkbox("Instant Kill", &gl::Aimbot::InstantKill);
 			ImGui::Checkbox("No Aiming Restrictions", &gl::Aimbot::NoAimingRestrictions);
@@ -65,17 +64,21 @@ inline void DrawMenu()
 				ImGui::SameLine();
 				ImGui::Combo("##SnaplinePosition", &selected_position, snapline_positions, IM_ARRAYSIZE(snapline_positions));
 
-				ImGui::Checkbox("Nickname", &gl::ESP::Nicknames);
+				ImGui::Checkbox("Nicknames", &gl::ESP::Nicknames);
 				ImGui::SameLine();
 				ImGui::ColorEdit3("##Nicknames color", (float*)&gl::esp_Colors::Nickname, ImGuiColorEditFlags_NoInputs);
 
 				ImGui::Checkbox("Health Bar", &gl::ESP::HealthBar);
-				ImGui::Checkbox("Team Check", &gl::ESP::TeamCheck);
+				ImGui::Checkbox("Skeleton", &gl::ESP::Skeleton);
+				ImGui::Checkbox("Distance", &gl::ESP::Distance);
+				ImGui::SameLine();
+				ImGui::ColorEdit3("##Distance color", (float*)&gl::esp_Colors::DistanceColor, ImGuiColorEditFlags_NoInputs);
 				ImGui::Spacing();
 			}
 			ImGui::Separator();
 			ImGui::Spacing();
 
+			ImGui::Checkbox("Team Check", &gl::ESP::TeamCheck);
 			ImGui::Checkbox("No Flash", &gl::ESP::NoFlash);
 
 			ImGui::Spacing();
@@ -99,7 +102,7 @@ inline void DrawMenu()
 			ImGui::SameLine();
 			ImGui::SliderFloat("##View Fov Value", &gl::Exploits::FovValue, 90.f, 160.f);
 
-			ImGui::Checkbox("Gravity Multiplier", &gl::Exploits::Gravity);
+			ImGui::Checkbox("Gravity Multiplier*", &gl::Exploits::Gravity);
 			ImGui::SameLine();
 			ImGui::SliderFloat("##Gravity Multiplier Value", &gl::Exploits::GravityValue, -1.f, 3.f);
 
@@ -111,43 +114,50 @@ inline void DrawMenu()
 
 			ImGui::Checkbox("Full Auto", &gl::Exploits::FullAuto);
 			ImGui::Checkbox("Unlimited Ammo", &gl::Exploits::UnlimitedAmmo);
-			ImGui::Checkbox("GodMode", &gl::Exploits::GodMode);
+			ImGui::Checkbox("GodMode*", &gl::Exploits::GodMode);
 			ImGui::SliderInt("##XP Value", &gl::Exploits::xp, 0, 50000);
 			ImGui::SameLine();
-			if (ImGui::Button("Apply XP"))
+			if (ImGui::Button("Apply XP*"))
 				gl::Exploits::xpApply = true;
 
-			ImGui::SliderInt("##Rank Value", &gl::Exploits::killsQuantity, 0, 100);
+			ImGui::SliderInt("##Rank Value", &gl::Exploits::killsQuantity, -50, 100);
 			ImGui::SameLine();
 			if (ImGui::Button("Add Kills"))
 				gl::Exploits::addKills = true;
 
+			ImGui::Checkbox("Teleport Enemies Infront", &gl::Exploits::TeleportEnemies);
+			ImGui::Spacing();
+			ImGui::Spacing();
+			ImGui::TextWrapped("Features marked with (*) only work if you are the host.");
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Host Options"))
 		{
-			ImGui::Checkbox("Gravity Multiplier", &gl::HostOptions::Gravity);
+			ImGui::Checkbox("Gravity Multiplier*", &gl::HostOptions::Gravity);
 			ImGui::SameLine();
 			ImGui::SliderFloat("##Gravity Multiplier Value", &gl::HostOptions::GravityValue, -1.f, 3.f);
 
-			ImGui::Checkbox("No Recoil", &gl::HostOptions::NoRecoil);
+			ImGui::Checkbox("No Recoil*", &gl::HostOptions::NoRecoil);
 
-			ImGui::Checkbox("Rapid Fire", &gl::HostOptions::RapidFire);
+			ImGui::Checkbox("Rapid Fire*", &gl::HostOptions::RapidFire);
 			ImGui::SameLine();
 			ImGui::SliderFloat("##Rapid Fire Value", &gl::HostOptions::RapidFireValue, 0.f, 1.f);
 
-			ImGui::Checkbox("Full Auto", &gl::HostOptions::FullAuto);
-			ImGui::Checkbox("No Damage Bullets", &gl::HostOptions::NoDamageBullets);
-			ImGui::Checkbox("Remove Ammo", &gl::HostOptions::RemoveBullets);
-			ImGui::Checkbox("Unlimited Ammo", &gl::HostOptions::UnlimitedAmmo);
+			ImGui::Checkbox("Full Auto*", &gl::HostOptions::FullAuto);
+			ImGui::Checkbox("No Damage Bullets*", &gl::HostOptions::NoDamageBullets);
+			ImGui::Checkbox("Remove Ammo*", &gl::HostOptions::RemoveBullets);
+			ImGui::Checkbox("Unlimited Ammo*", &gl::HostOptions::UnlimitedAmmo);
 
-			ImGui::Checkbox("Crazy Heads", &gl::HostOptions::CrazyHeads);
-			ImGui::Checkbox("Kill All players", &gl::HostOptions::KillPlayers);
-			ImGui::Checkbox("Kill All players (silent)", &gl::HostOptions::KillPlayersSilent);
+			ImGui::Checkbox("Crazy Heads*", &gl::HostOptions::CrazyHeads);
+			ImGui::Checkbox("Kill All players*", &gl::HostOptions::KillPlayers);
+			ImGui::Checkbox("Kill All players (silent)*", &gl::HostOptions::KillPlayersSilent);
 
-			if (ImGui::Button("Finish Game"))
+			if (ImGui::Button("Finish Game*"))
 				gl::HostOptions::finishGame = true;
 
+			ImGui::Spacing();
+			ImGui::Spacing();
+			ImGui::TextWrapped("Features marked with (*) only work if you are the host.");
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Misc"))
@@ -156,7 +166,6 @@ inline void DrawMenu()
 			if (ImGui::Button("Suicide"))
 				gl::Misc::Suicide = true;
 
-			ImGui::Checkbox("Hide SteamID In-Game", &gl::Misc::HideSteamId);
 
 			ImGui::Spacing();
 			ImGui::Separator();

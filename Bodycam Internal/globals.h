@@ -12,9 +12,13 @@ inline SDK::UWorld* World{};
 inline SDK::TArray<SDK::AActor*> actors{};
 inline SDK::AActor* actor_list{};
 inline SDK::APlayerController* MyController{};
+inline SDK::AALS_AnimMan_CharacterBP_C* LocalCharacter{};
 inline SDK::AActor* LocalActor{};
 inline float aimbot_distance{};
 inline std::vector<SDK::AActor*> WorldActors{};
+inline std::vector<SDK::AActor*> Zombies{};
+
+inline SDK::UHUD_ScorePlayerInfo_C* score{};
 
 inline const char* snapline_positions[] = { "Top", "Middle", "Bottom" };
 inline int selected_position = 0;
@@ -46,6 +50,8 @@ namespace gl
 		inline bool SnapLines = false;
 		inline bool Nicknames = false;
 		inline bool HealthBar = false;
+		inline bool Skeleton = false;
+		inline bool Distance = false;
 		inline bool TeamCheck = false;
 
 		inline bool NoFlash = false;
@@ -83,15 +89,20 @@ namespace gl
 		inline bool UnlimitedAmmo = false;
 		inline bool GodMode = false;
 
-
-		inline bool DisarmEnemies = false;
-		inline bool StealEnemyBullets = false;
-
 		inline float RapidFireValue = 0.11f;
 		inline int xp = 0;
 		inline int killsQuantity = 0;
 		inline bool xpApply = false;
 		inline bool addKills = false;
+
+		inline bool TeleportEnemies = false;
+
+		inline bool firstFrozenKills = false;
+		inline bool frozenKills = false;
+		inline int kills = 0;
+
+		inline int zombieTime = 0;
+		inline bool addZombieTime = false;
 	}
 
 	namespace HostOptions
@@ -119,14 +130,21 @@ namespace gl
 	{
 		inline bool ShowMouse = true;
 		inline bool Suicide = false;
+		inline bool safeMode = true;
 		inline bool HideSteamId = false;
+		inline bool test1 = false;
+		inline bool test2 = false;
+		inline bool test3 = false;
+		inline int test3Value = 0;
+		inline bool test4 = false;
+		inline bool test5 = false;
 	}
 
 	namespace esp_Colors
 	{
 		inline ImColor Box3DColor{ 255.f, 0.f , 0.f };
 		inline ImColor SnaplineColor{ 0.f, 255.f, 255.f };
-		inline ImColor SkeletonColor{ 255.f, 0.f, 0.f };
+		inline ImColor DistanceColor{ 255.f, 255.f, 255.f };
 		inline ImColor FovColor{ 255.f, 255.f, 255.f };
 		inline ImColor CrosshairColor{ 255.f, 0.f, 0.f };
 		inline ImColor VisibleColor{ 255.f, 0.f, 0.f };
@@ -136,7 +154,7 @@ namespace gl
 		inline ImColor Bomb = Colors::Red;
 
 		inline ImColor AimLine = Colors::Red;
-		inline ImColor Nickname = Colors::White;
+		inline ImColor Nickname{ 255.f, 255.f, 255.f };
 
 		inline ImColor White = Colors::White;
 

@@ -41,6 +41,33 @@ namespace ESP
 			draw_list->AddLine(A.ToImVec2(), B.ToImVec2(), color, t);
 		}
 	}
+	inline void Draw2DBox(SDK::FVector& center, SDK::FVector& Bounds, SDK::APlayerController* Controller, ImColor col, bool outline = true)
+	{
+		const float wX = (center.X + Bounds.X) - (center.X - Bounds.X);
+		const float wY = (center.Y + Bounds.Y) - (center.Y - Bounds.Y);
+
+		SDK::FVector Top = center + SDK::FVector(0, 0, Bounds.Z);
+		SDK::FVector Bottom = center - SDK::FVector(0, 0, Bounds.Z);
+
+		SDK::FVector t1 = { center.X - wX / 2, center.Y - wY / 2, Top.Z };
+		SDK::FVector t2 = { center.X + wX / 2, center.Y - wY / 2, Top.Z };
+		SDK::FVector b1 = { center.X - wX / 2, center.Y - wY / 2, Bottom.Z };
+		SDK::FVector b2 = { center.X + wX / 2, center.Y - wY / 2, Bottom.Z };
+
+		SDK::FVector2D t1w2s{}, t2w2s{}, b1w2s{}, b2w2s{};
+
+		if (Controller->ProjectWorldLocationToScreen(t1, &t1w2s, false) &&
+			Controller->ProjectWorldLocationToScreen(t2, &t2w2s, false) &&
+			Controller->ProjectWorldLocationToScreen(b1, &b1w2s, false) &&
+			Controller->ProjectWorldLocationToScreen(b2, &b2w2s, false))
+		{
+			ESP::DrawLineFVector(t1w2s, t2w2s, col, 1.f, outline);
+			ESP::DrawLineFVector(t2w2s, b2w2s, col, 1.f, outline);
+			ESP::DrawLineFVector(b2w2s, b1w2s, col, 1.f, outline);
+			ESP::DrawLineFVector(b1w2s, t1w2s, col, 1.f, outline);
+		}
+	}
+
 	inline void DrawCircle(Vec2 pos, float r, ImColor color, int segments = 12, float t = 1.f)
 	{
 		draw_list->AddCircle(pos.ToImVec2(), r, color, segments, t);
