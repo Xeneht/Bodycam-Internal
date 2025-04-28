@@ -15,9 +15,9 @@
 
 ## Features
 ### Aimbot
+- Hitboxes (Head/Body)
 - Show Fov
 - Fov Slider
-- Pitch Value
 - Aim Line
 - Instant Kill
 - No Aiming Restrictions
@@ -27,12 +27,15 @@
 - Visible ESP
 - Not Visible ESP
 - Snaplines (Top/Middle/Bottom)
+- Players Chams
+- Local Chams
+- Weapon Chams
 - Nickname
 - Health Bar
 - Team Check
 - No Flash
-- Drones ESP (may cause crashes)
-- Bomb ESP (may cause crashes)
+- Drones ESP
+- Bomb ESP
 
 ### Exploits
 - View Fov Slider
@@ -42,26 +45,11 @@
 - Full Auto
 - Unlimited Ammo
 - GodMode (must be host)
-- XP Slider
-- Add Kills Slider
 
-### Host Options (must be host and applies to all players)
-- Gravity Multiplier Slider
-- No Recoil
-- Rapid Fire
-- Full Auto
-- No Damage Bullets
-- Remove Ammo
-- Unlimited Ammo
-- Crazy Heads (Spinbot players, just visual)
-- Kill All Players
-- Kill All Players (silent) - You won't get kills
-- Finish Game
 
 ### Misc
 - Show Mouse
 - Suicide
-- Hide Steam ID In-Game
 
 ## Credits
 - [Valgar1](https://github.com/valgar12) - Cheat was developed using his work as a reference, with his support.
