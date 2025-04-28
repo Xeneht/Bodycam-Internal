@@ -1,14 +1,9 @@
 #pragma once
-#include "includes.h"
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_win32.h"
-#include "imgui/imgui_impl_dx11.h"
 #include "Vector.h"
 #include <array>
 #include "globals.h"
 
-
-constexpr Vec2 ScreenCenter{ 1920 / 2, 1080 / 2 };
 constexpr float PI{ 3.14f };
 
 namespace ESP
@@ -17,28 +12,28 @@ namespace ESP
 	{
 
 		if (outline)
-			draw_list->AddLine(ImVec2(posA.X, posA.Y), ImVec2(posB.X, posB.Y), ImColor(0.f, 0.f, 0.f), t + 1.f);
-		draw_list->AddLine(ImVec2(posA.X, posA.Y), ImVec2(posB.X, posB.Y), color, t);
+			drawList->AddLine(ImVec2(posA.X, posA.Y), ImVec2(posB.X, posB.Y), ImColor(0.f, 0.f, 0.f), t + 1.f);
+		drawList->AddLine(ImVec2(posA.X, posA.Y), ImVec2(posB.X, posB.Y), color, t);
 	}
 	inline void DrawBox(Vec2 A, Vec2 B, ImColor color, bool outline = true, float rounding = 0.f, float t = 1.f)
 	{
 		if (!outline)
-			draw_list->AddRect(A.ToImVec2(), B.ToImVec2(), color, rounding, t);
+			drawList->AddRect(A.ToImVec2(), B.ToImVec2(), color, rounding, t);
 		else
 		{
-			draw_list->AddRect(A.ToImVec2(), B.ToImVec2(), color, rounding, t);
-			draw_list->AddRect({ A.x + 1, A.y + 1 }, { B.x - 1, B.y - 1 }, Colors::Black, rounding, t);
-			draw_list->AddRect({ A.x - 1, A.y - 1 }, { B.x + 1, B.y + 1 }, Colors::Black, rounding, t);
+			drawList->AddRect(A.ToImVec2(), B.ToImVec2(), color, rounding, t);
+			drawList->AddRect({ A.x + 1, A.y + 1 }, { B.x - 1, B.y - 1 }, colors::black, rounding, t);
+			drawList->AddRect({ A.x - 1, A.y - 1 }, { B.x + 1, B.y + 1 }, colors::black, rounding, t);
 		}
 	}
 	inline void DrawLine(Vec2 A, Vec2 B, ImColor color, bool outline = true, float t = 1.f)
 	{
 		if (!outline)
-			draw_list->AddLine(A.ToImVec2(), B.ToImVec2(), color, t);
+			drawList->AddLine(A.ToImVec2(), B.ToImVec2(), color, t);
 		else
 		{
-			draw_list->AddLine(A.ToImVec2(), B.ToImVec2(), Colors::Black, t + 1);
-			draw_list->AddLine(A.ToImVec2(), B.ToImVec2(), color, t);
+			drawList->AddLine(A.ToImVec2(), B.ToImVec2(), colors::black, t + 1);
+			drawList->AddLine(A.ToImVec2(), B.ToImVec2(), color, t);
 		}
 	}
 	inline void Draw2DBox(SDK::FVector& center, SDK::FVector& Bounds, SDK::APlayerController* Controller, ImColor col, bool outline = true)
@@ -70,15 +65,15 @@ namespace ESP
 
 	inline void DrawCircle(Vec2 pos, float r, ImColor color, int segments = 12, float t = 1.f)
 	{
-		draw_list->AddCircle(pos.ToImVec2(), r, color, segments, t);
+		drawList->AddCircle(pos.ToImVec2(), r, color, segments, t);
 	}
 	inline void DrawCircleFilled(Vec2 pos, float r, ImColor color, int segments = 12)
 	{
-		draw_list->AddCircleFilled(pos.ToImVec2(), r, color, segments);
+		drawList->AddCircleFilled(pos.ToImVec2(), r, color, segments);
 	}
 	inline void DrawBoxFilled(Vec2 A, Vec2 B, ImColor color, float rounding = 0.f, float t = 1.f)
 	{
-		draw_list->AddRectFilled(A.ToImVec2(), B.ToImVec2(), color, rounding);
+		drawList->AddRectFilled(A.ToImVec2(), B.ToImVec2(), color, rounding);
 	}
 	inline void DrawCorneredBox(Vec2 A, Vec2 B, float w, float h, ImColor color)
 	{
@@ -97,14 +92,9 @@ namespace ESP
 		DrawLine({ B.x - w, B.y }, { B.x - w, B.y - hi }, color);
 		DrawLine({ B.x + w, B.y }, { B.x + w, B.y - hi }, color);
 	}
-	inline void DrawCrosshair(float size, float t, ImColor color)
-	{
-		DrawLine({ ScreenCenter.x - size, ScreenCenter.y }, { ScreenCenter.x + size, ScreenCenter.y }, color, true, t);
-		DrawLine({ ScreenCenter.x, ScreenCenter.y - size }, { ScreenCenter.x, ScreenCenter.y + size }, color, true, t);
-	}
 	inline void DrawText2(Vec2 pos, ImColor color, const char* text)
 	{
-		draw_list->AddText(ImVec2(pos.x, pos.y), color, text);
+		drawList->AddText(ImVec2(pos.x, pos.y), color, text);
 	}
 	inline void Draw3DBox(SDK::FVector& center, SDK::FVector& Bounds, SDK::APlayerController* Controller, ImColor col, bool outline = true)
 	{

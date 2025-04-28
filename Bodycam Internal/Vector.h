@@ -1,6 +1,5 @@
 #pragma once
 #include <cmath>
-#include "includes.h"
 #include "imgui/imgui.h"
 
 struct Vec3

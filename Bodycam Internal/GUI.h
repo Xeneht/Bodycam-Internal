@@ -1,5 +1,8 @@
 #pragma once
-#include "includes.h"
+#include "functions.h"
+#include <algorithm>
+
+
 inline bool firstDraw = true;
 
 inline void DrawMenu()
@@ -9,162 +12,208 @@ inline void DrawMenu()
 		ImGui::SetNextWindowSize(ImVec2(500, 300));
 		firstDraw = false;
 	}
-	ImGui::Begin("Bodycam Cheat Made By Xeneht (Unknowncheats.me) V0.1.3.4");
+	ImGui::Begin("Bodycam Cheat Made By Xeneht (Unknowncheats.me) V0.1.4.0");
 
 	if (ImGui::BeginTabBar("tabs"))
 	{
 		if (ImGui::BeginTabItem("Aimbot"))
 		{
-			ImGui::Checkbox("Aimbot", &gl::Aimbot::Aimbot);
+			ImGui::Checkbox("Aimbot", &gl::aimbot::aimbot);
+			ImGui::SameLine();
+			ImGui::Combo("##HitboxBone", &gl::aimbot::hitbox, hitboxes, IM_ARRAYSIZE(hitboxes));
 			
-			if (gl::Aimbot::Aimbot)
+			if (gl::aimbot::aimbot)
 			{
 				ImGui::Separator();
 
-				ImGui::Checkbox("Show Fov", &gl::Aimbot::ShowFov);
+				ImGui::Checkbox("Show Fov", &gl::aimbot::showFov);
 				ImGui::SameLine();
-				ImGui::ColorEdit3("##Fov color", (float*)&gl::esp_Colors::FovColor, ImGuiColorEditFlags_NoInputs);
+				ImGui::ColorEdit3("##Fov color", (float*)&gl::espColors::fovColor, ImGuiColorEditFlags_NoInputs);
 				ImGui::SameLine();
-				ImGui::SliderFloat("##Fov Value", &gl::Aimbot::Fov, 0.f, 1000.f);
+				ImGui::SliderFloat("##Fov Value", &gl::aimbot::fov, 0.f, 1000.f);
 
-				ImGui::Text("Pitch Value");
-				ImGui::SliderFloat("##Pitch Value", &gl::Aimbot::Pitch, -0.5f, 0.5f);
-				ImGui::Checkbox("Aim Line", &gl::Aimbot::AimLine);
+				ImGui::Checkbox("Aim Line", &gl::aimbot::aimLine);
 				ImGui::SameLine();
-				ImGui::ColorEdit3("##Aimline color", (float*)&gl::esp_Colors::AimLine, ImGuiColorEditFlags_NoInputs);
-				
+				ImGui::ColorEdit3("##Aimline color", (float*)&gl::espColors::aimLine, ImGuiColorEditFlags_NoInputs);
+
 				ImGui::Spacing();
 			}
 			ImGui::Separator();
 
-			ImGui::Checkbox("Instant Kill", &gl::Aimbot::InstantKill);
-			ImGui::Checkbox("No Aiming Restrictions", &gl::Aimbot::NoAimingRestrictions);
-			ImGui::Checkbox("Instant Aiming", &gl::Aimbot::InstantAiming);
+			ImGui::Checkbox("Instant Kill", &gl::aimbot::instantKill);
+			ImGui::Checkbox("No Aiming Restrictions", &gl::aimbot::noAimingRestrictions);
+			ImGui::Checkbox("Instant Aiming", &gl::aimbot::instantAiming);
 
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Visuals"))
 		{
-			ImGui::Checkbox("ESP", &gl::ESP::ESP);
-			if (gl::ESP::ESP)
+			ImGui::Checkbox("ESP", &gl::esp::esp);
+			if (gl::esp::esp)
 			{
 				ImGui::Separator();
 
-				ImGui::Checkbox("Visible", &gl::ESP::ESP_Visible);
+				ImGui::Checkbox("Visible", &gl::esp::espVisible);
 				ImGui::SameLine();
-				ImGui::ColorEdit3("##Visible color", (float*)&gl::esp_Colors::VisibleColor, ImGuiColorEditFlags_NoInputs);
+				ImGui::ColorEdit3("##Visible color", (float*)&gl::espColors::visibleColor, ImGuiColorEditFlags_NoInputs);
 
-				ImGui::Checkbox("Not Visible", &gl::ESP::ESP_NotVisible);
+				ImGui::Checkbox("Not Visible", &gl::esp::espNotVisible);
 				ImGui::SameLine();
-				ImGui::ColorEdit3("##NotVisible color", (float*)&gl::esp_Colors::NotVisibleColor, ImGuiColorEditFlags_NoInputs);
+				ImGui::ColorEdit3("##NotVisible color", (float*)&gl::espColors::notVisibleColor, ImGuiColorEditFlags_NoInputs);
 
-				ImGui::Checkbox("Snaplines", &gl::ESP::SnapLines);
+				ImGui::Checkbox("Snaplines", &gl::esp::snapLines);
 				ImGui::SameLine();
-				ImGui::ColorEdit3("##Snaplines color", (float*)&gl::esp_Colors::SnaplineColor, ImGuiColorEditFlags_NoInputs);
+				ImGui::ColorEdit3("##Snaplines color", (float*)&gl::espColors::snaplineColor, ImGuiColorEditFlags_NoInputs);
 				ImGui::SameLine();
-				ImGui::Combo("##SnaplinePosition", &selected_position, snapline_positions, IM_ARRAYSIZE(snapline_positions));
+				ImGui::Combo("##SnaplinePosition", &selectedSnaplinePos, snaplinePositions, IM_ARRAYSIZE(snaplinePositions));
 
-				ImGui::Checkbox("Nicknames", &gl::ESP::Nicknames);
-				ImGui::SameLine();
-				ImGui::ColorEdit3("##Nicknames color", (float*)&gl::esp_Colors::Nickname, ImGuiColorEditFlags_NoInputs);
 
-				ImGui::Checkbox("Health Bar", &gl::ESP::HealthBar);
-				ImGui::Checkbox("Skeleton", &gl::ESP::Skeleton);
-				ImGui::Checkbox("Distance", &gl::ESP::Distance);
+				if (ImGui::Checkbox("Players Chams", &gl::esp::playersChams))
+					updateChams(ChamsType::Players);
 				ImGui::SameLine();
-				ImGui::ColorEdit3("##Distance color", (float*)&gl::esp_Colors::DistanceColor, ImGuiColorEditFlags_NoInputs);
+				if (ImGui::Combo("##PlayerChams Type", &selectedPlayerChams, chamsTypes, IM_ARRAYSIZE(chamsTypes)))
+					updateChams(ChamsType::Players);
+
+				if (ImGui::Checkbox("Local Chams", &gl::esp::localChams))
+					updateChams(ChamsType::Local);
+				ImGui::SameLine();
+				if (ImGui::Combo("##LocalChams Type", &selectedLocalChams, chamsTypes, IM_ARRAYSIZE(chamsTypes)))
+					updateChams(ChamsType::Local);
+
+				if (ImGui::Checkbox("Weapon Chams", &gl::esp::weaponChams))
+					updateChams(ChamsType::Weapon);
+				ImGui::SameLine();
+				if (ImGui::Combo("##WeaponChams Type", &selectedWeaponChams, chamsTypes, IM_ARRAYSIZE(chamsTypes)))
+					updateChams(ChamsType::Weapon);
+
+
+				ImGui::Checkbox("Nicknames", &gl::esp::nicknames);
+				ImGui::SameLine();
+				ImGui::ColorEdit3("##Nicknames color", (float*)&gl::espColors::nickname, ImGuiColorEditFlags_NoInputs);
+
+				ImGui::Checkbox("Health Bar", &gl::esp::healthBar);
+				ImGui::Checkbox("Skeleton", &gl::esp::skeleton);
+				ImGui::Checkbox("Distance", &gl::esp::distance);
+				ImGui::SameLine();
+				ImGui::ColorEdit3("##Distance color", (float*)&gl::espColors::distanceColor, ImGuiColorEditFlags_NoInputs);
 				ImGui::Spacing();
 			}
 			ImGui::Separator();
 			ImGui::Spacing();
 
-			ImGui::Checkbox("Team Check", &gl::ESP::TeamCheck);
-			ImGui::Checkbox("No Flash", &gl::ESP::NoFlash);
+			ImGui::Checkbox("Team Check", &gl::esp::teamCheck);
+			ImGui::Checkbox("No Flash", &gl::esp::noFlash);
 
 			ImGui::Spacing();
 			ImGui::Separator();
 			ImGui::Spacing();
 			ImGui::Text("World");
 
-			ImGui::Checkbox("Drones", &gl::World::Drones);
+			ImGui::Checkbox("Drones", &gl::world::drones);
 			ImGui::SameLine();
-			ImGui::ColorEdit3("##Drones color", (float*)&gl::esp_Colors::Drones, ImGuiColorEditFlags_NoInputs);
+			ImGui::ColorEdit3("##Drones color", (float*)&gl::espColors::drones, ImGuiColorEditFlags_NoInputs);
 
-			ImGui::Checkbox("Bomb", &gl::World::Bomb);
+			ImGui::Checkbox("Bomb", &gl::world::bomb);
 			ImGui::SameLine();
-			ImGui::ColorEdit3("##Bomb color", (float*)&gl::esp_Colors::Bomb, ImGuiColorEditFlags_NoInputs);
+			ImGui::ColorEdit3("##Bomb color", (float*)&gl::espColors::bomb, ImGuiColorEditFlags_NoInputs);
 
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Exploits"))
 		{
-			ImGui::Checkbox("View Fov", &gl::Exploits::Fov);
+			ImGui::Checkbox("View Fov", &gl::exploits::fov);
 			ImGui::SameLine();
-			ImGui::SliderFloat("##View Fov Value", &gl::Exploits::FovValue, 90.f, 160.f);
+			ImGui::SliderFloat("##View Fov Value", &gl::exploits::fovValue, 90.f, 160.f);
 
-			ImGui::Checkbox("Gravity Multiplier*", &gl::Exploits::Gravity);
+			ImGui::Checkbox("Gravity Multiplier*", &gl::exploits::gravity);
 			ImGui::SameLine();
-			ImGui::SliderFloat("##Gravity Multiplier Value", &gl::Exploits::GravityValue, -1.f, 3.f);
+			ImGui::SliderFloat("##Gravity Multiplier Value", &gl::exploits::gravityValue, -1.f, 3.f);
 
-			ImGui::Checkbox("No Recoil", &gl::Exploits::NoRecoil);
+			ImGui::Checkbox("No Recoil", &gl::exploits::noRecoil);
 
-			ImGui::Checkbox("Rapid Fire", &gl::Exploits::RapidFire);
+			ImGui::Checkbox("Rapid Fire", &gl::exploits::rapidFire);
 			ImGui::SameLine();
-			ImGui::SliderFloat("##Rapid Fire Value", &gl::Exploits::RapidFireValue, 0.f, 1.f);
+			ImGui::SliderFloat("##Rapid Fire Value", &gl::exploits::rapidFireValue, 0.f, 1.f);
 
-			ImGui::Checkbox("Full Auto", &gl::Exploits::FullAuto);
-			ImGui::Checkbox("Unlimited Ammo", &gl::Exploits::UnlimitedAmmo);
-			ImGui::Checkbox("GodMode*", &gl::Exploits::GodMode);
-			ImGui::SliderInt("##XP Value", &gl::Exploits::xp, 0, 50000);
-			ImGui::SameLine();
-			if (ImGui::Button("Apply XP*"))
-				gl::Exploits::xpApply = true;
+			ImGui::Checkbox("Full Auto", &gl::exploits::fullAuto);
+			ImGui::Checkbox("Unlimited Ammo", &gl::exploits::unlimitedAmmo);
+			ImGui::Checkbox("GodMode*", &gl::exploits::godMode);
 
-			ImGui::SliderInt("##Rank Value", &gl::Exploits::killsQuantity, -50, 100);
-			ImGui::SameLine();
-			if (ImGui::Button("Add Kills"))
-				gl::Exploits::addKills = true;
-
-			ImGui::Checkbox("Teleport Enemies Infront", &gl::Exploits::TeleportEnemies);
+			ImGui::Checkbox("Teleport Enemies Infront", &gl::exploits::teleportEnemies);
 			ImGui::Spacing();
 			ImGui::Spacing();
 			ImGui::TextWrapped("Features marked with (*) only work if you are the host.");
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Host Options"))
+		if (ImGui::BeginTabItem("dev"))
 		{
-			ImGui::Checkbox("Gravity Multiplier*", &gl::HostOptions::Gravity);
-			ImGui::SameLine();
-			ImGui::SliderFloat("##Gravity Multiplier Value", &gl::HostOptions::GravityValue, -1.f, 3.f);
+			static int SelectedMaterialIndex = -1;
+			static std::string SelectedMaterialName = "";
+			static char MaterialSearch[128] = "";
 
-			ImGui::Checkbox("No Recoil*", &gl::HostOptions::NoRecoil);
+			if (ImGui::Button("Refresh materials"))
+			{
+				refreshMaterials();
+				SelectedMaterialIndex = -1;
+				SelectedMaterialName.clear();
+			}
 
-			ImGui::Checkbox("Rapid Fire*", &gl::HostOptions::RapidFire);
-			ImGui::SameLine();
-			ImGui::SliderFloat("##Rapid Fire Value", &gl::HostOptions::RapidFireValue, 0.f, 1.f);
+			std::lock_guard<std::mutex> lock(materialsMtx);
+			if (!availableMaterials.empty())
+			{
+				ImGui::InputText("Search", MaterialSearch, IM_ARRAYSIZE(MaterialSearch));
 
-			ImGui::Checkbox("Full Auto*", &gl::HostOptions::FullAuto);
-			ImGui::Checkbox("No Damage Bullets*", &gl::HostOptions::NoDamageBullets);
-			ImGui::Checkbox("Remove Ammo*", &gl::HostOptions::RemoveBullets);
-			ImGui::Checkbox("Unlimited Ammo*", &gl::HostOptions::UnlimitedAmmo);
+				std::vector<std::string> FilteredMaterials;
+				for (const auto& mat : availableMaterials)
+				{
+					std::string lowerMat = mat;
+					std::string lowerSearch = MaterialSearch;
 
-			ImGui::Checkbox("Crazy Heads*", &gl::HostOptions::CrazyHeads);
-			ImGui::Checkbox("Kill All players*", &gl::HostOptions::KillPlayers);
-			ImGui::Checkbox("Kill All players (silent)*", &gl::HostOptions::KillPlayersSilent);
+					std::transform(lowerMat.begin(), lowerMat.end(), lowerMat.begin(), ::tolower);
+					std::transform(lowerSearch.begin(), lowerSearch.end(), lowerSearch.begin(), ::tolower);
 
-			if (ImGui::Button("Finish Game*"))
-				gl::HostOptions::finishGame = true;
+					if (lowerMat.find(lowerSearch) != std::string::npos)
+					{
+						FilteredMaterials.push_back(mat);
+					}
+				}
 
-			ImGui::Spacing();
-			ImGui::Spacing();
-			ImGui::TextWrapped("Features marked with (*) only work if you are the host.");
+				std::vector<const char*> Items;
+				for (const auto& mat : FilteredMaterials)
+					Items.push_back(mat.c_str());
+
+				if (ImGui::ListBox("Available Materials", &SelectedMaterialIndex, Items.data(), (int)Items.size(), 10))
+				{
+					if (SelectedMaterialIndex >= 0)
+						SelectedMaterialName = FilteredMaterials[SelectedMaterialIndex];
+				}
+
+				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0) && SelectedMaterialIndex >= 0)
+				{
+					if (!SelectedMaterialName.empty()) {
+						createChamsMaterials(SelectedMaterialName, ChamsType::Players);
+						createChamsMaterials(SelectedMaterialName, ChamsType::Local);
+						createChamsMaterials(SelectedMaterialName, ChamsType::Weapon);
+					}
+				}
+
+				if (ImGui::Button("Apply material") && !SelectedMaterialName.empty())
+				{
+					createChamsMaterials(SelectedMaterialName, ChamsType::Players);
+					createChamsMaterials(SelectedMaterialName, ChamsType::Local);
+					createChamsMaterials(SelectedMaterialName, ChamsType::Weapon);
+				}
+			}
+
+
 			ImGui::EndTabItem();
 		}
+
 		if (ImGui::BeginTabItem("Misc"))
 		{
-			ImGui::Checkbox("Show mouse", &gl::Misc::ShowMouse);
+			ImGui::Checkbox("Show mouse", &gl::misc::showMouse);
 			if (ImGui::Button("Suicide"))
-				gl::Misc::Suicide = true;
+				gl::misc::suicide = true;
 
 
 			ImGui::Spacing();
@@ -204,72 +253,5 @@ inline void SetColorsFlags()
 {
 	ImVec4* colors = ImGui::GetStyle().Colors;
 
-	/*colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-	colors[ImGuiCol_WindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.88f);
-	colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_PopupBg] = ImVec4(0.11f, 0.11f, 0.14f, 0.92f);
-	colors[ImGuiCol_Border] = ImVec4(1.00f, 1.00f, 1.00f, 0.50f);
-	colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.00f);
-	colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.35f);
-	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.88f, 0.88f, 0.90f, 0.40f);
-	colors[ImGuiCol_FrameBgActive] = ImVec4(0.53f, 0.53f, 0.53f, 0.69f);
-	colors[ImGuiCol_TitleBg] = ImVec4(0.23f, 0.23f, 0.23f, 0.83f);
-	colors[ImGuiCol_TitleBgActive] = ImVec4(0.65f, 0.65f, 0.65f, 0.87f);
-	colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.47f, 0.47f, 0.47f, 0.20f);
-	colors[ImGuiCol_MenuBarBg] = ImVec4(0.43f, 0.43f, 0.43f, 0.80f);
-	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.20f, 0.25f, 0.30f, 0.60f);
-	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.71f, 0.71f, 0.71f, 0.30f);
-	colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.40f);
-	colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
-	colors[ImGuiCol_CheckMark] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_SliderGrab] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.50f, 0.50f, 0.50f, 0.60f);
-	colors[ImGuiCol_Button] = ImVec4(1.00f, 1.00f, 1.00f, 0.57f);
-	colors[ImGuiCol_ButtonHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.79f);
-	colors[ImGuiCol_ButtonActive] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_Header] = ImVec4(0.40f, 0.40f, 0.40f, 0.45f);
-	colors[ImGuiCol_HeaderHovered] = ImVec4(0.45f, 0.45f, 0.90f, 0.80f);
-	colors[ImGuiCol_HeaderActive] = ImVec4(0.53f, 0.53f, 0.87f, 0.80f);
-	colors[ImGuiCol_Separator] = ImVec4(0.50f, 0.50f, 0.50f, 0.60f);
-	colors[ImGuiCol_SeparatorHovered] = ImVec4(0.60f, 0.60f, 0.70f, 1.00f);
-	colors[ImGuiCol_SeparatorActive] = ImVec4(0.70f, 0.70f, 0.90f, 1.00f);
-	colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.16f);
-	colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.78f, 0.82f, 1.00f, 0.60f);
-	colors[ImGuiCol_ResizeGripActive] = ImVec4(0.78f, 0.82f, 1.00f, 0.90f);
-	colors[ImGuiCol_Tab] = ImVec4(0.42f, 0.42f, 0.42f, 0.79f);
-	colors[ImGuiCol_TabHovered] = ImVec4(0.76f, 0.76f, 0.76f, 0.80f);
-	colors[ImGuiCol_TabActive] = ImVec4(0.81f, 0.81f, 0.81f, 0.84f);
-	colors[ImGuiCol_TabUnfocused] = ImVec4(0.28f, 0.28f, 0.57f, 0.82f);
-	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.35f, 0.35f, 0.65f, 0.84f);
-	colors[ImGuiCol_PlotLines] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-	colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-	colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-	colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
-	colors[ImGuiCol_DragDropTarget] = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-	colors[ImGuiCol_NavHighlight] = ImVec4(0.45f, 0.45f, 0.90f, 0.80f);
-	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);*/
-
-
-
 	ImGuiStyle& style = ImGui::GetStyle();
-
-	/*style.FrameBorderSize = 1.f;
-	style.TabBorderSize = 1.f;
-	style.WindowTitleAlign.x = 0.50f;
-	style.WindowPadding = ImVec2(5, 5);
-	style.WindowRounding = 12.0f;
-	style.FramePadding = ImVec2(6, 6);
-	style.FrameRounding = 2.0f;
-	style.ItemSpacing = ImVec2(12, 8);
-	style.ItemInnerSpacing = ImVec2(8, 6);
-	style.IndentSpacing = 25.0f;
-	style.ScrollbarSize = 15.0f;
-	style.ScrollbarRounding = 9.0f;
-	style.GrabMinSize = 20.0f;
-	style.GrabRounding = 3.0f;
-	style.TabRounding = 8.f;*/
 }

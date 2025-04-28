@@ -1,6 +1,12 @@
-#include "includes.h"
-#include <iostream>
+#include "pch.h"
 #include "functions.h"
+#include "ESP.h"
+#include "GUI.h"
+#include "globals.h"
+#include "cache.h"
+#include "gameLoop.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx11.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -11,7 +17,7 @@ ID3D11Device* pDevice = NULL;
 ID3D11DeviceContext* pContext = NULL;
 ID3D11RenderTargetView* mainRenderTargetView;
 
-bool FirstInject = true;
+bool firstInject = true;
 
 void InitImGui()
 {
@@ -27,7 +33,7 @@ void InitImGui()
 	ImGui_ImplWin32_Init(window);
 	ImGui_ImplDX11_Init(pDevice, pContext);
 
-	draw_list = ImGui::GetBackgroundDrawList();
+	drawList = ImGui::GetBackgroundDrawList();
 }
 
 LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -39,13 +45,13 @@ LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		switch (wParam)
 		{
 		case VK_INSERT:
-			showmenu = !showmenu;
+			showMenu = !showMenu;
 			break;
 		}
 	}
 
-	if (showmenu && !FirstInject) return true;
-	if (!showmenu && FirstInject) FirstInject = false;
+	if (showMenu && !firstInject) return true;
+	if (!showMenu && firstInject) firstInject = false;
 
 	return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
 }
@@ -78,12 +84,12 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	if (showmenu)
+	if (showMenu)
 		DrawMenu();
 
-	GameLoop();
+	gameLoop();
 
-	if (gl::Misc::ShowMouse && showmenu)
+	if (gl::misc::showMouse && showMenu)
 	{
 		auto MousePos = ImGui::GetMousePos();
 		ImGui::GetForegroundDrawList()->AddCircleFilled(MousePos, 4.f, ImColor{ 1.f, 1.f, 1.f });
@@ -108,6 +114,9 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 DWORD WINAPI MainThread(LPVOID lpReserved)
 {
 	bool debug = false;
+#if defined(_DEBUG)
+	debug = true;
+#endif
 	if (debug) {
 		AllocConsole();
 
@@ -116,9 +125,16 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 		freopen_s(&fpstdin, "CONIN$", "r", stdin);
 		freopen_s(&fpstdout, "CONOUT$", "w", stdout);
 		freopen_s(&fpstderr, "CONOUT$", "w", stderr);
+
+		std::ios::sync_with_stdio();
+		std::cout.clear();
+		std::cerr.clear();
+		std::clog.clear();
 	}
 
-	std::thread(ActorsCache::ActorsCache).detach();
+
+	std::thread(Cache::Cache).detach();
+
 
 	bool init_hook = false;
 	do

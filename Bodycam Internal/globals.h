@@ -1,164 +1,194 @@
 #pragma once
-#include "includes.h"
 #include "SDK.hpp"
 
-inline bool showmenu = true;
+inline bool showMenu = true;
 inline bool alive = true;
-inline ImDrawList* draw_list{};
-inline std::vector<SDK::AActor*> PlayerList{};
-inline std::vector<SDK::AActor*> ActorList{};
-inline SDK::UEngine* Engine{};
-inline SDK::UWorld* World{};
+inline ImDrawList* drawList{};
+inline SDK::UWorld* world{};
 inline SDK::TArray<SDK::AActor*> actors{};
-inline SDK::AActor* actor_list{};
-inline SDK::APlayerController* MyController{};
-inline SDK::AALS_AnimMan_CharacterBP_C* LocalCharacter{};
-inline SDK::AActor* LocalActor{};
-inline float aimbot_distance{};
-inline std::vector<SDK::AActor*> WorldActors{};
-inline std::vector<SDK::AActor*> Zombies{};
+inline SDK::APlayerController* myController{};
+inline SDK::AALS_AnimMan_CharacterBP_C* localCharacter{};
+inline SDK::AActor* localActor{};
+inline float aimbotDistance{};
 
-inline SDK::UHUD_ScorePlayerInfo_C* score{};
+// aimbot
+inline SDK::FRotator targetRotation{};
+inline SDK::AActor* targetActor{};
+inline Vec2 target2D{};
+inline float targetDistance{};
 
-inline const char* snapline_positions[] = { "Top", "Middle", "Bottom" };
-inline int selected_position = 0;
+inline float screenWidth = GetSystemMetrics(SM_CXSCREEN);
+inline float screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-namespace Colors
+inline std::vector<SDK::AActor*> playerList{};
+inline std::vector<SDK::AActor*> botsList{};
+inline std::vector<SDK::AActor*> worldActors{};
+
+inline static std::vector<std::string> availableMaterials;
+inline static int selectedMaterialIndex = -1;
+
+inline SDK::UMaterialInstanceDynamic* chamsMat{};
+inline SDK::UMaterialInstanceDynamic* playersChamsMat{};
+inline SDK::UMaterialInstanceDynamic* localChamsMat{};
+inline SDK::UMaterialInstanceDynamic* weaponChamsMat{};
+
+inline std::mutex mtx;
+inline std::mutex materialsMtx;
+
+inline const char* snaplinePositions[] = { "Top", "Middle", "Bottom" };
+inline int selectedSnaplinePos = 0;
+
+inline const char* chamsTypes[] = { "White", "Ironman", "Black Glass", "Red Glass", "Transparent"};
+inline int selectedPlayerChams = 0;
+inline int selectedLocalChams = 0;
+inline int selectedWeaponChams = 0;
+inline const char* chamsNameList[] ={
+    "MaterialInstanceConstant Mi_PlasticWhite.Mi_PlasticWhite",
+    "MaterialInstanceConstant M_Ammo_12gauge.M_Ammo_12gauge",
+    "MaterialInstanceConstant Mi_Helmet_Glasses_01.Mi_Helmet_Glasses_01",
+    "MaterialInstanceConstant MI_GlassTumblers01.MI_GlassTumblers01"
+    "MaterialInstanceConstant MI_Glass_C.MI_Glass_C",
+};
+
+
+inline const char* hitboxes[] = { "Head", "Chest" };
+inline const char* hitboxesBones[] = { "head", "spine_03" };
+
+namespace colors
 {
-	inline ImColor White(255.f, 255.f, 255.f);
-	inline ImColor Black(0.f, 0.f, 0.f);
-	inline ImColor Red(255.f, 0.f, 0.f);
-	inline ImColor DarkRed(0.700f, 0.f, 0.f);
-	inline ImColor Green(0.f, 255.f, 0.f);
-	inline ImColor DarkGreen(0.f, 0.600f, 0.f);
-	inline ImColor Blue(0.f, 0.f, 255.f);
-	inline ImColor DarkBlue(0.f, 0.f, 0.700f);
-	inline ImColor Pink(255.f, 0.f, 255.f);
-	inline ImColor Cian(0.f, 255.f, 255.f);
-	inline ImColor Yellow(255.f, 255.f, 0.f);
-	inline ImColor Grey(0.600f, 0.600f, 0.600f);
-	inline ImColor Purple(0.200f, 0.f, 0.600f);
+    inline ImColor white(255.f, 255.f, 255.f);
+    inline ImColor black(0.f, 0.f, 0.f);
+    inline ImColor red(255.f, 0.f, 0.f);
+    inline ImColor darkRed(0.700f, 0.f, 0.f);
+    inline ImColor green(0.f, 255.f, 0.f);
+    inline ImColor darkGreen(0.f, 0.600f, 0.f);
+    inline ImColor blue(0.f, 0.f, 255.f);
+    inline ImColor darkBlue(0.f, 0.f, 0.700f);
+    inline ImColor pink(255.f, 0.f, 255.f);
+    inline ImColor cyan(0.f, 255.f, 255.f);
+    inline ImColor yellow(255.f, 255.f, 0.f);
+    inline ImColor grey(0.600f, 0.600f, 0.600f);
+    inline ImColor purple(0.200f, 0.f, 0.600f);
 }
 
 namespace gl
 {
-	namespace ESP
-	{
-		inline bool ESP = true;
-		inline bool ESP_Visible = true;
-		inline bool ESP_NotVisible = true;
-		inline bool SnapLines = false;
-		inline bool Nicknames = false;
-		inline bool HealthBar = false;
-		inline bool Skeleton = false;
-		inline bool Distance = false;
-		inline bool TeamCheck = false;
+    namespace esp
+    {
+        inline bool esp = true;
+        inline bool espVisible = true;
+        inline bool espNotVisible = true;
+        inline bool snapLines = false;
 
-		inline bool NoFlash = false;
-	}
+        inline bool playersChams = false;
+        inline bool localChams = false;
+        inline bool weaponChams = false;
 
-	namespace World
-	{
-		inline bool Drones = false;
-		inline bool Bomb = false;
-	}
-	
-	namespace Aimbot
-	{
-		inline bool Aimbot = false;
-		inline bool ShowFov = false;
-		inline float Fov = 0.f;
-		inline float Pitch = 0.f;
-		inline bool AimLine = false;
+        inline bool nicknames = false;
+        inline bool healthBar = false;
+        inline bool skeleton = false;
+        inline bool distance = false;
+        inline bool teamCheck = false;
 
-		inline bool InstantKill = false;
-		inline bool InstantAiming = false;
-		inline bool NoAimingRestrictions = false;
-	}
-	
-	namespace Exploits
-	{
-		inline bool Gravity = false;
-		inline bool Fov = false;
-		inline float GravityValue = 1.f;
-		inline float FovValue = 120.f;
+        inline bool noFlash = false;
+    }
 
-		inline bool NoRecoil = false;
-		inline bool RapidFire = false;
-		inline bool FullAuto = false;
-		inline bool UnlimitedAmmo = false;
-		inline bool GodMode = false;
+    namespace world
+    {
+        inline bool drones = false;
+        inline bool bomb = false;
+    }
 
-		inline float RapidFireValue = 0.11f;
-		inline int xp = 0;
-		inline int killsQuantity = 0;
-		inline bool xpApply = false;
-		inline bool addKills = false;
+    namespace aimbot
+    {
+        inline bool aimbot = false;
+        inline bool showFov = false;
+        inline float fov = 0.f;
+        inline bool aimLine = false;
+        inline int hitbox = 0;
 
-		inline bool TeleportEnemies = false;
+        inline bool instantKill = false;
+        inline bool instantAiming = false;
+        inline bool noAimingRestrictions = false;
+    }
 
-		inline bool firstFrozenKills = false;
-		inline bool frozenKills = false;
-		inline int kills = 0;
+    namespace exploits
+    {
+        inline bool gravity = false;
+        inline bool fov = false;
+        inline float gravityValue = 1.f;
+        inline float fovValue = 120.f;
 
-		inline int zombieTime = 0;
-		inline bool addZombieTime = false;
-	}
+        inline bool noRecoil = false;
+        inline bool rapidFire = false;
+        inline bool fullAuto = false;
+        inline bool unlimitedAmmo = false;
+        inline bool godMode = false;
 
-	namespace HostOptions
-	{
-		inline bool Gravity = false;
-		inline float GravityValue = 1.f;
+        inline float rapidFireValue = 0.11f;
+        inline int xp = 0;
+        inline int killsQuantity = 0;
+        inline bool xpApply = false;
+        inline bool addKills = false;
 
-		inline bool NoRecoil = false;
-		inline bool RapidFire = false;
-		inline bool UnlimitedAmmo = false;
-		inline bool FullAuto = false;
+        inline bool teleportEnemies = false;
 
-		inline bool NoDamageBullets = false;
-		inline bool RemoveBullets = false;
+        inline bool firstFrozenKills = false;
+        inline bool frozenKills = false;
+        inline int kills = 0;
 
-		inline bool CrazyHeads = false;
-		inline bool KillPlayers = false;
-		inline bool KillPlayersSilent = false;
+        inline int zombieTime = 0;
+        inline bool addZombieTime = false;
+    }
 
-		inline float RapidFireValue = 0.11f;
-		inline bool finishGame = false;
-	}
+    namespace hostOptions
+    {
+        inline bool gravity = false;
+        inline float gravityValue = 1.f;
 
-	namespace Misc
-	{
-		inline bool ShowMouse = true;
-		inline bool Suicide = false;
-		inline bool safeMode = true;
-		inline bool HideSteamId = false;
-		inline bool test1 = false;
-		inline bool test2 = false;
-		inline bool test3 = false;
-		inline int test3Value = 0;
-		inline bool test4 = false;
-		inline bool test5 = false;
-	}
+        inline bool noRecoil = false;
+        inline bool rapidFire = false;
+        inline bool unlimitedAmmo = false;
+        inline bool fullAuto = false;
 
-	namespace esp_Colors
-	{
-		inline ImColor Box3DColor{ 255.f, 0.f , 0.f };
-		inline ImColor SnaplineColor{ 0.f, 255.f, 255.f };
-		inline ImColor DistanceColor{ 255.f, 255.f, 255.f };
-		inline ImColor FovColor{ 255.f, 255.f, 255.f };
-		inline ImColor CrosshairColor{ 255.f, 0.f, 0.f };
-		inline ImColor VisibleColor{ 255.f, 0.f, 0.f };
-		inline ImColor NotVisibleColor{ 0.f, 255.f, 255.f };
+        inline bool noDamageBullets = false;
+        inline bool removeBullets = false;
 
-		inline ImColor Drones = Colors::Yellow;
-		inline ImColor Bomb = Colors::Red;
+        inline bool crazyHeads = false;
+        inline bool killPlayers = false;
+        inline bool killPlayersSilent = false;
 
-		inline ImColor AimLine = Colors::Red;
-		inline ImColor Nickname{ 255.f, 255.f, 255.f };
+        inline float rapidFireValue = 0.11f;
+        inline bool finishGame = false;
+    }
 
-		inline ImColor White = Colors::White;
+    namespace misc
+    {
+        inline bool showMouse = true;
+        inline bool suicide = false;
+        inline bool safeMode = true;
+        inline bool hideSteamId = false;
+    }
 
-		inline float visible[3] = { 1.0f, 0.0f, 0.0f };
-		inline float notVisible[3] = { 0.0f, 0.0f, 0.0f };
-	}
+    namespace espColors
+    {
+        inline ImColor box3DColor{ 255.f, 0.f , 0.f };
+        inline ImColor snaplineColor{ 0.f, 255.f, 255.f };
+        inline ImColor distanceColor{ 255.f, 255.f, 255.f };
+        inline ImColor fovColor{ 255.f, 255.f, 255.f };
+        inline ImColor crosshairColor{ 255.f, 0.f, 0.f };
+        inline ImColor visibleColor{ 255.f, 0.f, 0.f };
+        inline ImColor notVisibleColor{ 0.f, 255.f, 255.f };
+
+        inline ImColor drones = colors::yellow;
+        inline ImColor bomb = colors::red;
+
+        inline ImColor aimLine = colors::red;
+        inline ImColor nickname{ 255.f, 255.f, 255.f };
+
+        inline ImColor white = colors::white;
+
+        inline float visibleArr[3] = { 0.0f, 255.0f, 0.0f };
+        inline float notVisibleArr[3] = { 255.0f, 0.0f, 0.0f };
+    }
 }
